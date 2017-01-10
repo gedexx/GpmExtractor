@@ -19,6 +19,9 @@ public class Album implements Serializable {
     @DatabaseField
     private String coverArt;
 
+    @DatabaseField
+    private String genre;
+
     @DatabaseField(foreign = true)
     private Artist artist;
 
@@ -50,6 +53,14 @@ public class Album implements Serializable {
 
     public void setCoverArt(String coverArt) {
         this.coverArt = coverArt;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public Artist getArtist() {

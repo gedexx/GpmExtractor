@@ -17,6 +17,9 @@ public class Track implements Serializable {
     @DatabaseField
     private long duration;
 
+    @DatabaseField
+    private String localCopyPath;
+
     @DatabaseField(foreign = true)
     private Artist artist;
 
@@ -48,6 +51,14 @@ public class Track implements Serializable {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    public String getLocalCopyPath() {
+        return localCopyPath;
+    }
+
+    public void setLocalCopyPath(String localCopyPath) {
+        this.localCopyPath = localCopyPath;
     }
 
     public Artist getArtist() {

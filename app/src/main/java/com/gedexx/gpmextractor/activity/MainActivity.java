@@ -10,8 +10,12 @@ import com.gedexx.gpmextractor.helper.database.GpmDatabaseHelper;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Touch;
 import org.androidannotations.annotations.ViewById;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity {
@@ -20,6 +24,17 @@ public class MainActivity extends AppCompatActivity {
     TabHost tabHost;
 
     private GpmDatabaseHelper gpmDatabaseHelper;
+
+    public static int SONG_ID_COLUMN_NUM = 0;
+    public static int SONG_TITLE_COLUMN_NUM = 1;
+    public static int SONG_DURATION_COLUMN_NUM = 2;
+    public static int SONG_LOCAL_COPY_PATH_COLUMN_NUM = 3;
+    public static int ARTIST_ID_COLUMN_NUM = 4;
+    public static int ARTIST_NAME_COLUMN_NUM = 5;
+    public static int ALBUM_ID_COLUMN_NUM = 6;
+    public static int ALBUM_NAME_COLUMN_NUM = 7;
+    public static int ALBUM_GENRE_COLUMN_NUM = 8;
+    public static int ALBUM_ART_LOCATION_COLUMN_NUM = 9;
 
     private float lastX;
 
@@ -54,10 +69,51 @@ public class MainActivity extends AppCompatActivity {
         Log.d(MainActivity.class.getName(), "Initialisation de la BDD");
         gpmDatabaseHelper = new GpmDatabaseHelper(getApplicationContext());
         gpmDatabaseHelper.getWritableDatabase();
+
+        try {
+            String dbName = "music.db";
+            String packageSrc = "com.google.android.music";
+            String pathSource = "/data/data/" + packageSrc + "/databases/" + dbName;
+
+            String commandSelect = " \"SELECT Artist, Album, Title, HEX(CpData) FROM Music WHERE LocalCopyType = 200\";";
+            String commandSqliteCsv = "sqlite3 -csv ";
+            String command = commandSqliteCsv + pathSource + commandSelect;
+
+            Process p = Runtime.getRuntime().exec("su");
+
+            OutputStream os = p.getOutputStream();
+
+            os.write((command).getBytes("ASCII"));
+            os.flush();
+
+            os.close();
+
+            try {
+                p.waitFor();
+                if (p.exitValue() != 255) {
+                    // be happy and work with the database
+
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    StringBuffer result = new StringBuffer();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                        Log.d(MainActivity.class.getName(),"RESULT:"+result);
+                    }
+                }
+            } catch (InterruptedException e) {
+                // error
+            } finally {
+                p.destroy();
+            }
+        } catch (IOException e) {
+            // error
+        }
     }
 
     /**
      * Permet la gestion du swipe pour les tabs
+     *
      * @param motionEvent
      * @return
      */
