@@ -30,6 +30,8 @@ dependencies {
     })
     apt "org.androidannotations:androidannotations:$AAVersion"
     compile "org.androidannotations:androidannotations-api:$AAVersion"
+    apt "org.androidannotations:ormlite:$AAVersion"
+    compile "org.androidannotations:ormlite-api:$AAVersion"
     compile 'com.j256.ormlite:ormlite-android:5.0'
     compile 'com.j256.ormlite:ormlite-core:5.0'
     compile 'com.android.support:appcompat-v7:23.4.0'

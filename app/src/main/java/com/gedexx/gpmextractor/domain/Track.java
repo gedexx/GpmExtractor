@@ -20,10 +20,13 @@ public class Track implements Serializable {
     @DatabaseField
     private String localCopyPath;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField
+    private String cpData;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Artist artist;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Album album;
 
     public Track() {
@@ -61,6 +64,14 @@ public class Track implements Serializable {
         this.localCopyPath = localCopyPath;
     }
 
+    public String getCpData() {
+        return cpData;
+    }
+
+    public void setCpData(String cpData) {
+        this.cpData = cpData;
+    }
+
     public Artist getArtist() {
         return artist;
     }
@@ -75,5 +86,10 @@ public class Track implements Serializable {
 
     public void setAlbum(Album album) {
         this.album = album;
+    }
+
+    @Override
+    public String toString() {
+        return title;
     }
 }

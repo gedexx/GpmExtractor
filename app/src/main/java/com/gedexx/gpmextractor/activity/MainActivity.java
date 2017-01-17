@@ -1,47 +1,70 @@
 package com.gedexx.gpmextractor.activity;
 
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TabHost;
+import android.widget.Toast;
 
 import com.gedexx.gpmextractor.R;
+import com.gedexx.gpmextractor.adapter.AlbumAdapter;
+import com.gedexx.gpmextractor.adapter.ArtistAdapter;
+import com.gedexx.gpmextractor.adapter.TrackAdapter;
+import com.gedexx.gpmextractor.domain.Album;
+import com.gedexx.gpmextractor.domain.Artist;
+import com.gedexx.gpmextractor.domain.Track;
 import com.gedexx.gpmextractor.helper.database.GpmDatabaseHelper;
+import com.gedexx.gpmextractor.service.GpmDbService_;
+import com.j256.ormlite.dao.Dao;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.ormlite.annotations.OrmLiteDao;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.sql.SQLException;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity {
 
+    @OrmLiteDao(helper = GpmDatabaseHelper.class)
+    Dao<Artist, Long> artistDao;
+
+    @OrmLiteDao(helper = GpmDatabaseHelper.class)
+    Dao<Album, Long> albumDao;
+
+    @OrmLiteDao(helper = GpmDatabaseHelper.class)
+    Dao<Track, Long> trackDao;
+
     @ViewById(R.id.tabhost)
     TabHost tabHost;
 
-    private GpmDatabaseHelper gpmDatabaseHelper;
+    @ViewById(R.id.progressBar)
+    ProgressBar progressBar;
 
-    public static int SONG_ID_COLUMN_NUM = 0;
-    public static int SONG_TITLE_COLUMN_NUM = 1;
-    public static int SONG_DURATION_COLUMN_NUM = 2;
-    public static int SONG_LOCAL_COPY_PATH_COLUMN_NUM = 3;
-    public static int ARTIST_ID_COLUMN_NUM = 4;
-    public static int ARTIST_NAME_COLUMN_NUM = 5;
-    public static int ALBUM_ID_COLUMN_NUM = 6;
-    public static int ALBUM_NAME_COLUMN_NUM = 7;
-    public static int ALBUM_GENRE_COLUMN_NUM = 8;
-    public static int ALBUM_ART_LOCATION_COLUMN_NUM = 9;
+    @ViewById(R.id.lvArtists)
+    ListView lvArtists;
+
+    @ViewById(R.id.lvAlbums)
+    ListView lvAlbums;
+
+    @ViewById(R.id.lvTracks)
+    ListView lvTracks;
 
     private float lastX;
+
+    @AfterViews
+    void init() {
+        initTabHost();
+        extractDB();
+    }
 
     /**
      * Initialise les onglets
      */
-    @AfterViews
     void initTabHost() {
         tabHost.setup();
 
@@ -64,50 +87,34 @@ public class MainActivity extends AppCompatActivity {
         tabHost.addTab(tracksTab);
     }
 
-    @AfterViews
-    void initDB() {
-        Log.d(MainActivity.class.getName(), "Initialisation de la BDD");
-        gpmDatabaseHelper = new GpmDatabaseHelper(getApplicationContext());
-        gpmDatabaseHelper.getWritableDatabase();
+    /**
+     * Extraction de la BDD de GPM
+     */
+    void extractDB() {
+        GpmDbService_.intent(getApplication()).extractDb().start();
+    }
+
+    @Receiver(actions = "com.gedexx.gpmextractor.service.extraction_start")
+    void onStartingExtraction() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Receiver(actions = "com.gedexx.gpmextractor.service.extraction_error")
+    void onErrorExtraction() {
+        Toast.makeText(getApplicationContext(), "Erreur !", Toast.LENGTH_LONG).show();
+        progressBar.setVisibility(View.GONE);
+    }
+
+    @Receiver(actions = "com.gedexx.gpmextractor.service.extraction_finished")
+    void onFinishedExtraction() {
+        progressBar.setVisibility(View.GONE);
 
         try {
-            String dbName = "music.db";
-            String packageSrc = "com.google.android.music";
-            String pathSource = "/data/data/" + packageSrc + "/databases/" + dbName;
-
-            String commandSelect = " \"SELECT Artist, Album, Title, HEX(CpData) FROM Music WHERE LocalCopyType = 200\";";
-            String commandSqliteCsv = "sqlite3 -csv ";
-            String command = commandSqliteCsv + pathSource + commandSelect;
-
-            Process p = Runtime.getRuntime().exec("su");
-
-            OutputStream os = p.getOutputStream();
-
-            os.write((command).getBytes("ASCII"));
-            os.flush();
-
-            os.close();
-
-            try {
-                p.waitFor();
-                if (p.exitValue() != 255) {
-                    // be happy and work with the database
-
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    StringBuffer result = new StringBuffer();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                        Log.d(MainActivity.class.getName(),"RESULT:"+result);
-                    }
-                }
-            } catch (InterruptedException e) {
-                // error
-            } finally {
-                p.destroy();
-            }
-        } catch (IOException e) {
-            // error
+            lvArtists.setAdapter(new ArtistAdapter(this, artistDao.queryForAll()));
+            lvAlbums.setAdapter(new AlbumAdapter(this, albumDao.queryForAll()));
+            lvTracks.setAdapter(new TrackAdapter(this, trackDao.queryForAll()));
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -131,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
                 // if left to right swipe on screen
                 if (lastX < currentX) {
-
                     switchTabs(true);
                 }
 

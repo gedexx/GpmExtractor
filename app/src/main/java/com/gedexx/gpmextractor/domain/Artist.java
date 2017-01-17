@@ -56,4 +56,9 @@ public class Artist implements Serializable {
     public void setTrackList(ForeignCollection<Track> trackList) {
         this.trackList = trackList;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

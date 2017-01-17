@@ -17,12 +17,15 @@ public class Album implements Serializable {
     private String name;
 
     @DatabaseField
-    private String coverArt;
+    private String coverArtUrl;
+
+    @DatabaseField
+    private String coverArtLocalPath;
 
     @DatabaseField
     private String genre;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Artist artist;
 
     @ForeignCollectionField(foreignFieldName = "album")
@@ -47,12 +50,20 @@ public class Album implements Serializable {
         this.name = name;
     }
 
-    public String getCoverArt() {
-        return coverArt;
+    public String getCoverArtUrl() {
+        return coverArtUrl;
     }
 
-    public void setCoverArt(String coverArt) {
-        this.coverArt = coverArt;
+    public void setCoverArtUrl(String coverArtUrl) {
+        this.coverArtUrl = coverArtUrl;
+    }
+
+    public String getCoverArtLocalPath() {
+        return coverArtLocalPath;
+    }
+
+    public void setCoverArtLocalPath(String coverArtLocalPath) {
+        this.coverArtLocalPath = coverArtLocalPath;
     }
 
     public String getGenre() {
@@ -77,5 +88,10 @@ public class Album implements Serializable {
 
     public void setTrackList(ForeignCollection<Track> trackList) {
         this.trackList = trackList;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

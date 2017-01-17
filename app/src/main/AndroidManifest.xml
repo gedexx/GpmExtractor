@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".GpmExtractorApplication_"
@@ -20,6 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".service.GpmDbService_" />
+        <service android:name=".service.AlbumArtCoverDownloadService_" />
+        <service android:name=".service.DecryptionService_" />
     </application>
 
 </manifest>

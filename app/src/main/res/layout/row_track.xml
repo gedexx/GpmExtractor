@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@mipmap/ic_launcher"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/ivTrackDL" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="29dp"
+        android:id="@+id/tvTrackDuration"
+        android:textStyle="bold"
+        android:layout_alignBaseline="@+id/tvTrackArtistName"
+        android:layout_alignBottom="@+id/tvTrackArtistName"
+        android:layout_toStartOf="@+id/ivTrackDL" />
+
+    <ImageView
+        app:srcCompat="@android:drawable/ic_delete"
+        android:id="@+id/ivTrackAlbumCoverArt"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_height="50dp"
+        android:layout_width="50dp"
+        android:layout_marginTop="5dp" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvTrackAlbumName"
+        android:textStyle="italic"
+        android:layout_below="@+id/tvTrackArtistName"
+        android:layout_alignStart="@+id/tvTrackArtistName"
+        android:layout_alignEnd="@+id/tvTrackArtistName"
+        android:gravity="center_vertical" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvTrackTitle"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/ivTrackAlbumCoverArt"
+        android:layout_marginStart="15dp"
+        android:gravity="center_vertical"
+        android:textStyle="bold" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvTrackArtistName"
+        android:layout_below="@+id/tvTrackTitle"
+        android:layout_alignStart="@+id/tvTrackTitle"
+        android:gravity="center_vertical" />
+
+</RelativeLayout>
