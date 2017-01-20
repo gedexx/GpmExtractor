@@ -16,12 +16,12 @@
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="29dp"
+        android:layout_marginEnd="80dp"
         android:id="@+id/tvTrackDuration"
         android:textStyle="bold"
         android:layout_alignBaseline="@+id/tvTrackArtistName"
         android:layout_alignBottom="@+id/tvTrackArtistName"
-        android:layout_toStartOf="@+id/ivTrackDL" />
+        android:layout_alignParentEnd="true" />
 
     <ImageView
         app:srcCompat="@android:drawable/ic_delete"
@@ -62,5 +62,16 @@
         android:layout_below="@+id/tvTrackTitle"
         android:layout_alignStart="@+id/tvTrackTitle"
         android:gravity="center_vertical" />
+
+    <ProgressBar
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pgTrack"
+        android:visibility="gone"
+        android:layout_alignBottom="@+id/tvTrackAlbumName"
+        android:layout_alignParentEnd="true"
+        android:indeterminate="true"
+        android:indeterminateTint="@android:color/holo_green_light" />
 
 </RelativeLayout>

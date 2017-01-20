@@ -75,7 +75,7 @@
     <ProgressBar
         style="@style/Base.Widget.AppCompat.ProgressBar"
         android:layout_width="match_parent"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:indeterminate="true"
         android:id="@+id/progressBar"
         android:indeterminateTint="@android:color/holo_green_light"

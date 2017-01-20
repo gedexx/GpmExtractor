@@ -22,4 +22,14 @@
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/ivArtistDL" />
 
+    <ProgressBar
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pgArtist"
+        android:visibility="gone"
+        android:layout_alignParentEnd="true"
+        android:indeterminate="true"
+        android:indeterminateTint="@android:color/holo_green_light" />
+
 </RelativeLayout>

@@ -10,7 +10,6 @@ import com.gedexx.gpmextractor.helper.database.GpmDatabaseHelper;
 import com.j256.ormlite.dao.Dao;
 
 import org.androidannotations.annotations.EIntentService;
-import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ServiceAction;
 import org.androidannotations.api.support.app.AbstractIntentService;
 import org.androidannotations.ormlite.annotations.OrmLiteDao;
@@ -102,7 +101,6 @@ public class GpmDbService extends AbstractIntentService {
                         }
 
                         if (!albumDao.idExists(album.getId())) {
-                            AlbumArtCoverDownloadService_.intent(getApplication()).downloadAlbumArtCoverFromUrl(album.getCoverArtUrl(), album.getCoverArtLocalPath()).start();
                             albumDao.create(album);
                         }
                         trackDao.createIfNotExists(track);
@@ -118,15 +116,6 @@ public class GpmDbService extends AbstractIntentService {
             sendBroadcast(new Intent("com.gedexx.gpmextractor.service.extraction_error"));
         }
 
-    }
-
-    @Receiver(actions = "com.gedexx.gpmextractor.service.download_error")
-    void onErrorDownload() {
-        sendBroadcast(new Intent("com.gedexx.gpmextractor.service.extraction_error"));
-    }
-
-    @Receiver(actions = "com.gedexx.gpmextractor.service.download_finished")
-    void onFinishedDownload() {
     }
 
     private Artist createArtist(String line) throws NumberFormatException, IndexOutOfBoundsException {

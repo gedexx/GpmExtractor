@@ -39,4 +39,14 @@
         android:layout_below="@+id/tvAlbumName"
         android:layout_alignStart="@+id/tvAlbumName" />
 
+    <ProgressBar
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pgAlbum"
+        android:visibility="gone"
+        android:layout_alignParentEnd="true"
+        android:indeterminate="true"
+        android:indeterminateTint="@android:color/holo_green_light" />
+
 </RelativeLayout>

@@ -2,14 +2,13 @@ package com.gedexx.gpmextractor.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
-import com.gedexx.gpmextractor.R;
 import com.gedexx.gpmextractor.domain.Artist;
+import com.gedexx.gpmextractor.itemview.ArtistItemView;
+import com.gedexx.gpmextractor.itemview.ArtistItemView_;
 
 import java.util.List;
 
@@ -24,26 +23,15 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
+        ArtistItemView artistItemView;
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_artist, parent, false);
+            artistItemView = ArtistItemView_.build(getContext());
+        } else {
+            artistItemView = (ArtistItemView) convertView;
         }
 
-        ArtistViewHolder viewHolder = (ArtistViewHolder) convertView.getTag();
-        if (viewHolder == null) {
-            viewHolder = new ArtistViewHolder();
-            viewHolder.tvArtistName = (TextView) convertView.findViewById(R.id.tvArtistName);
+        artistItemView.bind(getItem(position));
 
-            convertView.setTag(viewHolder);
-        }
-
-        Artist artist = getItem(position);
-
-        viewHolder.tvArtistName.setText(artist.getName());
-
-        return convertView;
-    }
-
-    private class ArtistViewHolder {
-        public TextView tvArtistName;
+        return artistItemView;
     }
 }

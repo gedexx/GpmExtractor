@@ -28,7 +28,7 @@ public class Album implements Serializable {
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Artist artist;
 
-    @ForeignCollectionField(foreignFieldName = "album")
+    @ForeignCollectionField(foreignFieldName = "album", eager = true)
     private ForeignCollection<Track> trackList;
 
     public Album() {

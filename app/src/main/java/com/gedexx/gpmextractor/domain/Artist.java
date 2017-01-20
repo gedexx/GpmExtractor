@@ -16,10 +16,10 @@ public class Artist implements Serializable {
     @DatabaseField
     private String name;
 
-    @ForeignCollectionField(foreignFieldName = "artist")
+    @ForeignCollectionField(foreignFieldName = "artist", eager = true)
     private ForeignCollection<Album> albumList;
 
-    @ForeignCollectionField(foreignFieldName = "artist")
+    @ForeignCollectionField(foreignFieldName = "artist", eager = true)
     private ForeignCollection<Track> trackList;
 
     public Artist() {
