@@ -4,17 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gedexx.gpmextractor.R;
 import com.gedexx.gpmextractor.domain.Album;
-import com.gedexx.gpmextractor.service.DecryptionService_;
 
-import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
@@ -34,20 +31,13 @@ public class AlbumItemView extends RelativeLayout {
     public TextView tvArtistAlbumName;
 
     @ViewById
-    public ImageView ivAlbumDL;
-
-    @ViewById
-    public ProgressBar pgAlbum;
-
-    private Album album;
+    public CheckBox cbAlbum;
 
     public AlbumItemView(Context context) {
         super(context);
     }
 
     public void bind(Album album) {
-
-        this.album = album;
 
         try {
             Bitmap photo = BitmapFactory.decodeStream(getContext().openFileInput(album.getCoverArtLocalPath()));
@@ -58,23 +48,7 @@ public class AlbumItemView extends RelativeLayout {
 
         tvAlbumName.setText(album.getName().replace("\"", ""));
         tvArtistAlbumName.setText(album.getArtist().getName().replace("\"", ""));
-    }
-
-    @Click(R.id.ivAlbumDL)
-    public void onClickDL() {
-        DecryptionService_.intent(getContext()).decrypt(album.getTrackList()).start();
-    }
-
-    @Receiver(actions = "com.gedexx.gpmextractor.service.file_decryption_started", registerAt = Receiver.RegisterAt.OnAttachOnDetach)
-    public void onStartingDecryption() {
-        ivAlbumDL.setVisibility(View.GONE);
-        pgAlbum.setVisibility(View.VISIBLE);
-    }
-
-    @Receiver(actions = "com.gedexx.gpmextractor.service.file_decryption_success", registerAt = Receiver.RegisterAt.OnAttachOnDetach)
-    public void onFinishedDecryption() {
-        ivAlbumDL.setVisibility(View.VISIBLE);
-        pgAlbum.setVisibility(View.GONE);
+        cbAlbum.setChecked(cbAlbum.isChecked());
     }
 
     @Receiver(actions = "com.gedexx.gpmextractor.service.download_finished", registerAt = Receiver.RegisterAt.OnAttachOnDetach)

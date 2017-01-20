@@ -20,12 +20,16 @@ import com.gedexx.gpmextractor.domain.Album;
 import com.gedexx.gpmextractor.domain.Artist;
 import com.gedexx.gpmextractor.domain.Track;
 import com.gedexx.gpmextractor.helper.database.GpmDatabaseHelper;
+import com.gedexx.gpmextractor.itemview.AlbumItemView;
+import com.gedexx.gpmextractor.itemview.ArtistItemView;
+import com.gedexx.gpmextractor.itemview.TrackItemView;
 import com.gedexx.gpmextractor.service.AlbumArtCoverDownloadService_;
 import com.gedexx.gpmextractor.service.GpmDbService_;
 import com.j256.ormlite.dao.Dao;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.ormlite.annotations.OrmLiteDao;
@@ -151,6 +155,27 @@ public class MainActivity extends AppCompatActivity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @ItemClick(R.id.lvArtists)
+    public void onArtistClick(int position) {
+
+        ArtistItemView artistItemView = (ArtistItemView) lvArtists.getChildAt(position - lvAlbums.getFirstVisiblePosition());
+        artistItemView.cbArtist.setChecked(!artistItemView.cbArtist.isChecked());
+    }
+
+    @ItemClick(R.id.lvAlbums)
+    public void onAlbumClick(int position) {
+
+        AlbumItemView albumItemView = (AlbumItemView) lvAlbums.getChildAt(position - lvAlbums.getFirstVisiblePosition());
+        albumItemView.cbAlbum.setChecked(!albumItemView.cbAlbum.isChecked());
+    }
+
+    @ItemClick(R.id.lvTracks)
+    public void onTrackClick(int position) {
+
+        TrackItemView trackItemView = (TrackItemView) lvTracks.getChildAt(position - lvTracks.getFirstVisiblePosition());
+        trackItemView.cbTrack.setChecked(!trackItemView.cbTrack.isChecked());
     }
 
     /**

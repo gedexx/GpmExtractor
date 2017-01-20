@@ -14,8 +14,8 @@ import java.util.List;
 
 public class TrackAdapter extends ArrayAdapter<Track> {
 
-    public TrackAdapter(Context context, List<Track> objects) {
-        super(context, 0, objects);
+    public TrackAdapter(Context context, List<Track> tracks) {
+        super(context, 0, tracks);
     }
 
     @NonNull

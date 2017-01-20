@@ -14,8 +14,8 @@ import java.util.List;
 
 public class AlbumAdapter extends ArrayAdapter<Album> {
 
-    public AlbumAdapter(Context context, List<Album> objects) {
-        super(context, 0, objects);
+    public AlbumAdapter(Context context, List<Album> albums) {
+        super(context, 0, albums);
     }
 
     @NonNull
