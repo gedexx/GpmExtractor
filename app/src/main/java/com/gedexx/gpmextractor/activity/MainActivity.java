@@ -1,12 +1,15 @@
 package com.gedexx.gpmextractor.activity;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
@@ -24,10 +27,12 @@ import com.gedexx.gpmextractor.itemview.AlbumItemView;
 import com.gedexx.gpmextractor.itemview.ArtistItemView;
 import com.gedexx.gpmextractor.itemview.TrackItemView;
 import com.gedexx.gpmextractor.service.AlbumArtCoverDownloadService_;
+import com.gedexx.gpmextractor.service.DecryptionService_;
 import com.gedexx.gpmextractor.service.GpmDbService_;
 import com.j256.ormlite.dao.Dao;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.Receiver;
@@ -35,10 +40,16 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.ormlite.annotations.OrmLiteDao;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity {
+
+    private static final int ARTISTS_TAB = 0;
+    private static final int ALBUMS_TAB = 1;
+    private static final int TRACKS_TAB = 2;
 
     // Storage Permissions variables
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -71,10 +82,25 @@ public class MainActivity extends AppCompatActivity {
     @ViewById(R.id.lvTracks)
     ListView lvTracks;
 
+    @ViewById(R.id.btnConvert)
+    Button btnConvert;
+
+    @ViewById(R.id.progress_overlay)
+    View progressOverlay;
+
+    private Collection<Artist> selectedArtists;
+    private Collection<Album> selectedAlbums;
+    private Collection<Track> selectedTracks;
+
     private float lastX;
 
     @AfterViews
     void init() {
+
+        selectedArtists = new ArrayList<>();
+        selectedAlbums = new ArrayList<>();
+        selectedTracks = new ArrayList<>();
+
         verifyStoragePermissions(this);
         initTabHost();
         extractDB();
@@ -118,6 +144,17 @@ public class MainActivity extends AppCompatActivity {
         tracksTab.setContent(R.id.tracks_tab);
         tracksTab.setIndicator("Titres");
         tabHost.addTab(tracksTab);
+
+        tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                btnConvert.setVisibility(View.GONE);
+
+                selectedArtists.clear();
+                selectedAlbums.clear();
+                selectedTracks.clear();
+            }
+        });
     }
 
     /**
@@ -129,18 +166,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Receiver(actions = "com.gedexx.gpmextractor.service.extraction_start")
     void onStartingExtraction() {
-        progressBar.setVisibility(View.VISIBLE);
+        animateView(progressOverlay, View.VISIBLE, 0.4f);
     }
 
     @Receiver(actions = "com.gedexx.gpmextractor.service.extraction_error")
     void onErrorExtraction() {
         Toast.makeText(getApplicationContext(), "Erreur !", Toast.LENGTH_LONG).show();
-        progressBar.setVisibility(View.GONE);
+        animateView(progressOverlay, View.GONE, 0);
     }
 
     @Receiver(actions = "com.gedexx.gpmextractor.service.extraction_finished")
     void onFinishedExtraction() {
-        progressBar.setVisibility(View.GONE);
+        animateView(progressOverlay, View.GONE, 0);
 
         try {
             final List<Artist> artists = artistDao.queryForAll();
@@ -157,11 +194,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Receiver(actions = "com.gedexx.gpmextractor.service.file_decryption_started")
+    void onStartingDecryption() {
+        animateView(progressOverlay, View.VISIBLE, 0.4f);
+        btnConvert.setEnabled(false);
+    }
+
+    @Receiver(actions = "com.gedexx.gpmextractor.service.file_decryption_error")
+    void onErrorDecryption() {
+        animateView(progressOverlay, View.GONE, 0);
+        Toast.makeText(getApplicationContext(), "Erreur à la conversion !", Toast.LENGTH_LONG).show();
+    }
+
+    @Receiver(actions = "com.gedexx.gpmextractor.service.file_decryption_success")
+    void onFinishedDecryption() {
+        animateView(progressOverlay, View.GONE, 0);
+        btnConvert.setEnabled(true);
+    }
+
     @ItemClick(R.id.lvArtists)
     public void onArtistClick(int position) {
 
         ArtistItemView artistItemView = (ArtistItemView) lvArtists.getChildAt(position - lvAlbums.getFirstVisiblePosition());
         artistItemView.cbArtist.setChecked(!artistItemView.cbArtist.isChecked());
+
+        if (artistItemView.cbArtist.isChecked()) {
+            selectedArtists.add((Artist) lvArtists.getItemAtPosition(position));
+        } else {
+            selectedArtists.remove((Artist) lvArtists.getItemAtPosition(position));
+        }
+
+        if (selectedArtists.isEmpty()) {
+            btnConvert.setVisibility(View.GONE);
+        } else {
+            btnConvert.setVisibility(View.VISIBLE);
+            if (selectedArtists.size() == 1) {
+                btnConvert.setText("Convertir l'artiste sélectionné");
+            } else {
+                btnConvert.setText("Convertir les " + selectedArtists.size() + " artistes sélectionnés");
+            }
+
+        }
     }
 
     @ItemClick(R.id.lvAlbums)
@@ -169,6 +242,24 @@ public class MainActivity extends AppCompatActivity {
 
         AlbumItemView albumItemView = (AlbumItemView) lvAlbums.getChildAt(position - lvAlbums.getFirstVisiblePosition());
         albumItemView.cbAlbum.setChecked(!albumItemView.cbAlbum.isChecked());
+
+        if (albumItemView.cbAlbum.isChecked()) {
+            selectedAlbums.add((Album) lvAlbums.getItemAtPosition(position));
+        } else {
+            selectedAlbums.remove((Album) lvAlbums.getItemAtPosition(position));
+        }
+
+        if (selectedAlbums.isEmpty()) {
+            btnConvert.setVisibility(View.GONE);
+        } else {
+            btnConvert.setVisibility(View.VISIBLE);
+            if (selectedAlbums.size() == 1) {
+                btnConvert.setText("Convertir l'album sélectionné");
+            } else {
+                btnConvert.setText("Convertir les " + selectedAlbums.size() + " albums sélectionnés");
+            }
+
+        }
     }
 
     @ItemClick(R.id.lvTracks)
@@ -176,6 +267,48 @@ public class MainActivity extends AppCompatActivity {
 
         TrackItemView trackItemView = (TrackItemView) lvTracks.getChildAt(position - lvTracks.getFirstVisiblePosition());
         trackItemView.cbTrack.setChecked(!trackItemView.cbTrack.isChecked());
+
+        if (trackItemView.cbTrack.isChecked()) {
+            selectedTracks.add((Track) lvTracks.getItemAtPosition(position));
+        } else {
+            selectedTracks.remove((Track) lvTracks.getItemAtPosition(position));
+        }
+
+        if (selectedTracks.isEmpty()) {
+            btnConvert.setVisibility(View.GONE);
+        } else {
+            btnConvert.setVisibility(View.VISIBLE);
+            if (selectedTracks.size() == 1) {
+                btnConvert.setText("Convertir la chanson sélectionnée");
+            } else {
+                btnConvert.setText("Convertir les " + selectedTracks.size() + " chansons sélectionnées");
+            }
+
+        }
+    }
+
+    @Click(R.id.btnConvert)
+    public void onBtnConvertClick() {
+
+        Collection<Track> tracksToConvert = new ArrayList<>();
+
+        switch (tabHost.getCurrentTab()) {
+            case ARTISTS_TAB:
+                for (Artist artist : selectedArtists) {
+                    tracksToConvert.addAll(artist.getTrackList());
+                }
+                break;
+            case ALBUMS_TAB:
+                for (Album album : selectedAlbums) {
+                    tracksToConvert.addAll(album.getTrackList());
+                }
+                break;
+            case TRACKS_TAB:
+                tracksToConvert.addAll(selectedTracks);
+                break;
+        }
+
+        DecryptionService_.intent(getApplicationContext()).decrypt(tracksToConvert).start();
     }
 
     /**
@@ -216,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (direction) // true = move left
         {
-            if (tabHost.getCurrentTab() == 0)
+            if (tabHost.getCurrentTab() == ARTISTS_TAB)
                 tabHost.setCurrentTab(tabHost.getTabWidget().getTabCount() - 1);
             else
                 tabHost.setCurrentTab(tabHost.getCurrentTab() - 1);
@@ -227,7 +360,28 @@ public class MainActivity extends AppCompatActivity {
                     .getTabCount() - 1))
                 tabHost.setCurrentTab(tabHost.getCurrentTab() + 1);
             else
-                tabHost.setCurrentTab(0);
+                tabHost.setCurrentTab(ARTISTS_TAB);
         }
+    }
+
+    /**
+     * @param view         View to animate
+     * @param toVisibility Visibility at the end of animation
+     * @param toAlpha      Alpha at the end of animation
+     */
+    private static void animateView(final View view, final int toVisibility, float toAlpha) {
+        boolean show = toVisibility == View.VISIBLE;
+        if (show) {
+            view.setAlpha(0);
+        }
+        view.setVisibility(View.VISIBLE);
+        view.animate()
+                .alpha(show ? toAlpha : 0)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        view.setVisibility(toVisibility);
+                    }
+                });
     }
 }
