@@ -25,11 +25,16 @@ public class Album implements Serializable {
     @DatabaseField
     private String genre;
 
+    @DatabaseField
+    private int year;
+
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Artist artist;
 
     @ForeignCollectionField(foreignFieldName = "album", eager = true)
     private ForeignCollection<Track> trackList;
+
+    private boolean checked;
 
     public Album() {
     }
@@ -74,6 +79,14 @@ public class Album implements Serializable {
         this.genre = genre;
     }
 
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
     public Artist getArtist() {
         return artist;
     }
@@ -88,6 +101,14 @@ public class Album implements Serializable {
 
     public void setTrackList(ForeignCollection<Track> trackList) {
         this.trackList = trackList;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 
     @Override

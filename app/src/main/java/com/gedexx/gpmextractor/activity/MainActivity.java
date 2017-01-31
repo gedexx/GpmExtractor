@@ -215,13 +215,16 @@ public class MainActivity extends AppCompatActivity {
     @ItemClick(R.id.lvArtists)
     public void onArtistClick(int position) {
 
-        ArtistItemView artistItemView = (ArtistItemView) lvArtists.getChildAt(position - lvAlbums.getFirstVisiblePosition());
-        artistItemView.cbArtist.setChecked(!artistItemView.cbArtist.isChecked());
+        final Artist artist = (Artist) lvArtists.getItemAtPosition(position);
+        artist.setChecked(!artist.isChecked());
 
-        if (artistItemView.cbArtist.isChecked()) {
-            selectedArtists.add((Artist) lvArtists.getItemAtPosition(position));
+        final ArtistItemView artistItemView = (ArtistItemView) lvArtists.getChildAt(position - lvAlbums.getFirstVisiblePosition());
+        artistItemView.bind(artist);
+
+        if (artist.isChecked()) {
+            selectedArtists.add(artist);
         } else {
-            selectedArtists.remove((Artist) lvArtists.getItemAtPosition(position));
+            selectedArtists.remove(artist);
         }
 
         if (selectedArtists.isEmpty()) {
@@ -240,13 +243,16 @@ public class MainActivity extends AppCompatActivity {
     @ItemClick(R.id.lvAlbums)
     public void onAlbumClick(int position) {
 
-        AlbumItemView albumItemView = (AlbumItemView) lvAlbums.getChildAt(position - lvAlbums.getFirstVisiblePosition());
-        albumItemView.cbAlbum.setChecked(!albumItemView.cbAlbum.isChecked());
+        final Album album = (Album) lvAlbums.getItemAtPosition(position);
+        album.setChecked(!album.isChecked());
 
-        if (albumItemView.cbAlbum.isChecked()) {
-            selectedAlbums.add((Album) lvAlbums.getItemAtPosition(position));
+        final AlbumItemView albumItemView = (AlbumItemView) lvAlbums.getChildAt(position - lvAlbums.getFirstVisiblePosition());
+        albumItemView.bind(album);
+
+        if (album.isChecked()) {
+            selectedAlbums.add(album);
         } else {
-            selectedAlbums.remove((Album) lvAlbums.getItemAtPosition(position));
+            selectedAlbums.remove(album);
         }
 
         if (selectedAlbums.isEmpty()) {
@@ -265,13 +271,16 @@ public class MainActivity extends AppCompatActivity {
     @ItemClick(R.id.lvTracks)
     public void onTrackClick(int position) {
 
-        TrackItemView trackItemView = (TrackItemView) lvTracks.getChildAt(position - lvTracks.getFirstVisiblePosition());
-        trackItemView.cbTrack.setChecked(!trackItemView.cbTrack.isChecked());
+        final Track track = (Track) lvTracks.getItemAtPosition(position);
+        track.setChecked(!track.isChecked());
 
-        if (trackItemView.cbTrack.isChecked()) {
-            selectedTracks.add((Track) lvTracks.getItemAtPosition(position));
+        final TrackItemView trackItemView = (TrackItemView) lvTracks.getChildAt(position - lvTracks.getFirstVisiblePosition());
+        trackItemView.bind(track);
+
+        if (track.isChecked()) {
+            selectedTracks.add(track);
         } else {
-            selectedTracks.remove((Track) lvTracks.getItemAtPosition(position));
+            selectedTracks.remove(track);
         }
 
         if (selectedTracks.isEmpty()) {
@@ -290,25 +299,35 @@ public class MainActivity extends AppCompatActivity {
     @Click(R.id.btnConvert)
     public void onBtnConvertClick() {
 
-        Collection<Track> tracksToConvert = new ArrayList<>();
+        Collection<Long> tracksToConvertIds = new ArrayList<>();
 
         switch (tabHost.getCurrentTab()) {
             case ARTISTS_TAB:
                 for (Artist artist : selectedArtists) {
-                    tracksToConvert.addAll(artist.getTrackList());
+                    tracksToConvertIds.addAll(getTrackIds(artist.getTrackList()));
                 }
                 break;
             case ALBUMS_TAB:
                 for (Album album : selectedAlbums) {
-                    tracksToConvert.addAll(album.getTrackList());
+                    tracksToConvertIds.addAll(getTrackIds(album.getTrackList()));
                 }
                 break;
             case TRACKS_TAB:
-                tracksToConvert.addAll(selectedTracks);
+                tracksToConvertIds.addAll(getTrackIds(selectedTracks));
                 break;
         }
 
-        DecryptionService_.intent(getApplicationContext()).decrypt(tracksToConvert).start();
+        DecryptionService_.intent(getApplicationContext()).decrypt(tracksToConvertIds).start();
+    }
+
+    private Collection<? extends Long> getTrackIds(Collection<Track> trackList) {
+
+        Collection<Long> trackIds = new ArrayList<>();
+
+        for (Track track : trackList) {
+            trackIds.add(track.getId());
+        }
+        return trackIds;
     }
 
     /**

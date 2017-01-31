@@ -26,6 +26,6 @@ public class ArtistItemView extends RelativeLayout {
 
     public void bind(Artist artist) {
         tvArtistName.setText(artist.getName().replace("\"", ""));
-        cbArtist.setChecked(cbArtist.isChecked());
+        cbArtist.setChecked(artist.isChecked());
     }
 }

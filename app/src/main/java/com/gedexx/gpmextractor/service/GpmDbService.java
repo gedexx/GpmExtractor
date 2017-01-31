@@ -30,16 +30,18 @@ public class GpmDbService extends AbstractIntentService {
     public static String GPM_DB_NAME = "music.db";
 
     public static int SONG_ID_COLUMN_NUM = 0;
-    public static int SONG_TITLE_COLUMN_NUM = 1;
-    public static int SONG_DURATION_COLUMN_NUM = 2;
-    public static int SONG_LOCAL_COPY_PATH_COLUMN_NUM = 3;
-    public static int SONG_CP_DATA_COLUMN_NUM = 4;
-    public static int ARTIST_ID_COLUMN_NUM = 5;
-    public static int ARTIST_NAME_COLUMN_NUM = 6;
-    public static int ALBUM_ID_COLUMN_NUM = 7;
-    public static int ALBUM_NAME_COLUMN_NUM = 8;
-    public static int ALBUM_GENRE_COLUMN_NUM = 9;
-    public static int ALBUM_ART_LOCATION_COLUMN_NUM = 10;
+    public static int SONG_NUMBER_COLUMN_NUM = 1;
+    public static int SONG_TITLE_COLUMN_NUM = 2;
+    public static int SONG_DURATION_COLUMN_NUM = 3;
+    public static int SONG_LOCAL_COPY_PATH_COLUMN_NUM = 4;
+    public static int SONG_CP_DATA_COLUMN_NUM = 5;
+    public static int ARTIST_ID_COLUMN_NUM = 6;
+    public static int ARTIST_NAME_COLUMN_NUM = 7;
+    public static int ALBUM_ID_COLUMN_NUM = 8;
+    public static int ALBUM_NAME_COLUMN_NUM = 9;
+    public static int ALBUM_GENRE_COLUMN_NUM = 10;
+    public static int ALBUM_YEAR_COLUMN_NUM = 11;
+    public static int ALBUM_ART_LOCATION_COLUMN_NUM = 12;
 
     @OrmLiteDao(helper = GpmDatabaseHelper.class)
     Dao<Artist, Long> artistDao;
@@ -62,9 +64,9 @@ public class GpmDbService extends AbstractIntentService {
         try {
             String pathSource = DATA_DIR_PATH + GPM_PACKAGE_NAME + DATABASES_DIR_NAME + GPM_DB_NAME;
 
-            String commandSelect = " \"SELECT SongId, Title, Duration, LocalCopyPath, HEX(CpData), " +
+            String commandSelect = " \"SELECT SongId, TrackNumber, Title, Duration, LocalCopyPath, HEX(CpData), " +
                     "ArtistId, Artist, " +
-                    "AlbumId, Album, Genre, AlbumArtLocation  " +
+                    "AlbumId, Album, Genre, Year, AlbumArtLocation  " +
                     "FROM Music " +
                     "WHERE LocalCopyType = 200\";";
             String commandSqliteCsv = "sqlite3 -csv ";
@@ -139,6 +141,7 @@ public class GpmDbService extends AbstractIntentService {
         album.setCoverArtUrl(splittedLine[ALBUM_ART_LOCATION_COLUMN_NUM]);
         album.setCoverArtLocalPath(Uri.parse(album.getCoverArtUrl()).getLastPathSegment());
         album.setGenre(splittedLine[ALBUM_GENRE_COLUMN_NUM]);
+        album.setYear(Integer.valueOf(splittedLine[ALBUM_YEAR_COLUMN_NUM]));
 
         return album;
     }
@@ -149,6 +152,7 @@ public class GpmDbService extends AbstractIntentService {
 
         Track track = new Track();
         track.setId(Long.valueOf(splittedLine[SONG_ID_COLUMN_NUM]));
+        track.setNumber(Integer.valueOf(splittedLine[SONG_NUMBER_COLUMN_NUM]));
         track.setTitle(splittedLine[SONG_TITLE_COLUMN_NUM]);
         track.setDuration(Long.valueOf(splittedLine[SONG_DURATION_COLUMN_NUM]));
         track.setLocalCopyPath(splittedLine[SONG_LOCAL_COPY_PATH_COLUMN_NUM]);

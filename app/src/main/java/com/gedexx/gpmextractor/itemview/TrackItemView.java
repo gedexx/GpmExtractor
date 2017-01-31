@@ -56,7 +56,7 @@ public class TrackItemView extends RelativeLayout {
         tvTrackArtistName.setText(track.getArtist().getName().replace("\"", ""));
         tvTrackAlbumName.setText(track.getAlbum().getName().replace("\"", ""));
         tvTrackDuration.setText(String.format("%1$tM:%1$tS", track.getDuration()));
-        cbTrack.setChecked(cbTrack.isChecked());
+        cbTrack.setChecked(track.isChecked());
     }
 
     @Receiver(actions = "com.gedexx.gpmextractor.service.download_finished", registerAt = Receiver.RegisterAt.OnAttachOnDetach)

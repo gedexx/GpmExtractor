@@ -12,6 +12,9 @@ public class Track implements Serializable {
     private long id;
 
     @DatabaseField
+    private int number;
+
+    @DatabaseField
     private String title;
 
     @DatabaseField
@@ -29,6 +32,8 @@ public class Track implements Serializable {
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Album album;
 
+    private boolean checked;
+
     public Track() {
     }
 
@@ -38,6 +43,14 @@ public class Track implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     public String getTitle() {
@@ -86,6 +99,14 @@ public class Track implements Serializable {
 
     public void setAlbum(Album album) {
         this.album = album;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 
     @Override

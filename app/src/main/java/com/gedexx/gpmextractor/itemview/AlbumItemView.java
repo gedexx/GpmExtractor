@@ -48,7 +48,7 @@ public class AlbumItemView extends RelativeLayout {
 
         tvAlbumName.setText(album.getName().replace("\"", ""));
         tvArtistAlbumName.setText(album.getArtist().getName().replace("\"", ""));
-        cbAlbum.setChecked(cbAlbum.isChecked());
+        cbAlbum.setChecked(album.isChecked());
     }
 
     @Receiver(actions = "com.gedexx.gpmextractor.service.download_finished", registerAt = Receiver.RegisterAt.OnAttachOnDetach)

@@ -22,6 +22,8 @@ public class Artist implements Serializable {
     @ForeignCollectionField(foreignFieldName = "artist", eager = true)
     private ForeignCollection<Track> trackList;
 
+    private boolean checked;
+
     public Artist() {
     }
 
@@ -55,6 +57,14 @@ public class Artist implements Serializable {
 
     public void setTrackList(ForeignCollection<Track> trackList) {
         this.trackList = trackList;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 
     @Override
