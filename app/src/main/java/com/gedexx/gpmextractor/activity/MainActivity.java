@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         final Artist artist = (Artist) lvArtists.getItemAtPosition(position);
         artist.setChecked(!artist.isChecked());
 
-        final ArtistItemView artistItemView = (ArtistItemView) lvArtists.getChildAt(position - lvAlbums.getFirstVisiblePosition());
+        final ArtistItemView artistItemView = (ArtistItemView) lvArtists.getChildAt(position - lvArtists.getFirstVisiblePosition());
         artistItemView.bind(artist);
 
         if (artist.isChecked()) {
