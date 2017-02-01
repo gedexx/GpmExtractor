@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -23,7 +22,7 @@ public class CpInputStream
 	private final SecretKeySpec	mSecretKeySpec;
 	private final InputStream	mSource;
 
-	public CpInputStream(InputStream source, byte[] secretKey) throws IOException {
+	public CpInputStream(InputStream source, byte[] secretKey) throws IOException, IllegalArgumentException {
 		mIvBuffer = new byte[16];
 		if (secretKey.length != 16) {
 			throw new IllegalArgumentException("secretKey length must be 16");

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -82,16 +83,6 @@ public class DecryptionService extends AbstractIntentService {
                     p.waitFor();
                     if (p.exitValue() != 255) {
 
-                        // Decryption du fichier copié
-
-                        final byte[] secretkey = hexStringToByteArray(track.getCpData());
-
-                        final File srcFile = new File(pathTarget);
-                        final FileInputStream fis = new FileInputStream(srcFile);
-
-                        final ChunkedInputStream cpInput = new CpInputStream(fis, secretkey);
-                        final ChunkedInputStreamAdapter in = new ChunkedInputStreamAdapter(cpInput);
-
                         final String strippedArtistName = track.getArtist().getName().replace("\"", "");
                         final String strippedAlbumName = track.getAlbum().getName().replace("\"", "");
                         final String strippedTrackTitle = track.getTitle().replace("\"", "").replace(" / ", "_");
@@ -100,12 +91,28 @@ public class DecryptionService extends AbstractIntentService {
 
                         final File targetPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), strippedArtistName + File.separator + strippedAlbumName);
                         if (!targetPath.mkdirs()) {
-                            Log.i(DecryptionService.class.getName(), "Dossier déjà existant !");
+                            Log.d(DecryptionService.class.getName(), "Dossier déjà existant !");
                         }
 
                         final File targetFile = new File(targetPath, outFileName);
                         final File targetFileTemp = new File(targetPath, "temp_" + outFileName);
                         final FileOutputStream out = new FileOutputStream(targetFileTemp);
+
+                        // Decryption du fichier copié
+
+                        final byte[] secretkey = hexStringToByteArray(track.getCpData());
+
+                        final File srcFile = new File(pathTarget);
+                        final FileInputStream fis = new FileInputStream(srcFile);
+
+                        InputStream in;
+                        try {
+                            final ChunkedInputStream cpInput = new CpInputStream(fis, secretkey);
+                            in = new ChunkedInputStreamAdapter(cpInput);
+                        } catch (IllegalArgumentException e) {
+                            Log.d(DecryptionService.class.getName(), "Musique provenant d'un upload ultérieur");
+                            in = fis;
+                        }
 
                         byte[] buffer = new byte[1024];
                         int bytesRead;
