@@ -59,86 +59,81 @@ public class DecryptionService extends AbstractIntentService {
             try {
                 final Track track = trackDao.queryForId(trackId);
 
-                String pathSource = DATA_DIR_PATH + GPM_PACKAGE_NAME + GPM_MUSIC_FILE_PATH + track.getLocalCopyPath();
-                //String pathTarget = getFilesDir().getAbsolutePath() + File.separator + track.getLocalCopyPath();
-                String pathTarget = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + track.getLocalCopyPath();
+                // Création de l'arborescencee et du nom de fichier
+                final String strippedArtistName = track.getArtist().getName().replace("\"", "");
+                final String strippedAlbumName = track.getAlbum().getName().replace("\"", "");
+                final String strippedTrackTitle = track.getTitle().replace("\"", "").replace(" / ", "_");
+                final String trackNumber = track.getNumber() < 10 ? "0" + String.valueOf(track.getNumber()) : String.valueOf(track.getNumber());
+                final String outFileName = trackNumber + " - " + strippedTrackTitle + MP3_EXTENSION;
 
-                String commandCp = "cp " + pathSource + " " + pathTarget + "\n";
-                /*String commandCHOwn = "chown " + getApplicationInfo().uid + "." + getApplicationInfo().uid + " " + pathTarget + "\n";
-                String commandCHMod = "chmod 660 " + pathTarget + "\n";*/
+                final File targetPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), strippedArtistName + File.separator + strippedAlbumName);
+                final File targetFile = new File(targetPath, outFileName);
 
-                Process p = Runtime.getRuntime().exec("su");
-
-                OutputStream os = p.getOutputStream();
-
-                os.write((commandCp).getBytes("ASCII"));
-                os.flush();
-                /*os.write((commandCHOwn).getBytes("ASCII"));
-                os.flush();
-                os.write((commandCHMod).getBytes("ASCII"));*/
-
-                os.close();
-
-                try {
-                    p.waitFor();
-                    if (p.exitValue() != 255) {
-
-                        final String strippedArtistName = track.getArtist().getName().replace("\"", "");
-                        final String strippedAlbumName = track.getAlbum().getName().replace("\"", "");
-                        final String strippedTrackTitle = track.getTitle().replace("\"", "").replace(" / ", "_");
-                        final String trackNumber = track.getNumber() < 10 ? "0" + String.valueOf(track.getNumber()) : String.valueOf(track.getNumber());
-                        final String outFileName = trackNumber + " - " + strippedTrackTitle + MP3_EXTENSION;
-
-                        final File targetPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), strippedArtistName + File.separator + strippedAlbumName);
-                        if (!targetPath.mkdirs()) {
-                            Log.d(DecryptionService.class.getName(), "Dossier déjà existant !");
-                        }
-
-                        final File targetFile = new File(targetPath, outFileName);
-                        final File targetFileTemp = new File(targetPath, "temp_" + outFileName);
-                        final FileOutputStream out = new FileOutputStream(targetFileTemp);
-
-                        // Decryption du fichier copié
-
-                        final byte[] secretkey = hexStringToByteArray(track.getCpData());
-
-                        final File srcFile = new File(pathTarget);
-                        final FileInputStream fis = new FileInputStream(srcFile);
-
-                        InputStream in;
-                        try {
-                            final ChunkedInputStream cpInput = new CpInputStream(fis, secretkey);
-                            in = new ChunkedInputStreamAdapter(cpInput);
-                        } catch (IllegalArgumentException e) {
-                            Log.d(DecryptionService.class.getName(), "Musique provenant d'un upload ultérieur");
-                            in = fis;
-                        }
-
-                        byte[] buffer = new byte[1024];
-                        int bytesRead;
-                        while ((bytesRead = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, bytesRead);
-                        }
-                        in.close();
-                        out.close();
-
-                        mp3TaggingTrack(targetFileTemp, targetFile, track);
-
-                        if (!targetFileTemp.delete()) {
-                            sendBroadcast(new Intent("com.gedexx.gpmextractor.service.file_decryption_error"));
-                        }
-
-                        if (!srcFile.delete()) {
-                            sendBroadcast(new Intent("com.gedexx.gpmextractor.service.file_decryption_error"));
-                        }
-
-                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(targetFile)));
+                if (!targetFile.exists()) {
+                    if (!targetPath.mkdirs()) {
+                        Log.d(DecryptionService.class.getName(), "Dossier déjà existant !");
                     }
-                } catch (InterruptedException | IOException e) {
-                    e.printStackTrace();
-                    sendBroadcast(new Intent("com.gedexx.gpmextractor.service.file_decryption_error"));
-                } finally {
-                    p.destroy();
+
+                    final String pathSource = DATA_DIR_PATH + GPM_PACKAGE_NAME + GPM_MUSIC_FILE_PATH + track.getLocalCopyPath();
+                    final String pathTarget = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + track.getLocalCopyPath();
+
+                    final Process p = Runtime.getRuntime().exec("su");
+
+                    final String commandCp = "cp " + pathSource + " " + pathTarget + "\n";
+                    final OutputStream os = p.getOutputStream();
+                    os.write((commandCp).getBytes("ASCII"));
+                    os.flush();
+                    os.close();
+
+                    try {
+                        p.waitFor();
+                        if (p.exitValue() != 255) {
+
+                            final File targetFileTemp = new File(targetPath, "temp_" + outFileName);
+                            final FileOutputStream out = new FileOutputStream(targetFileTemp);
+
+                            // Decryption du fichier copié
+
+                            final byte[] secretkey = hexStringToByteArray(track.getCpData());
+
+                            final File srcFile = new File(pathTarget);
+                            final FileInputStream fis = new FileInputStream(srcFile);
+
+                            InputStream in;
+                            try {
+                                final ChunkedInputStream cpInput = new CpInputStream(fis, secretkey);
+                                in = new ChunkedInputStreamAdapter(cpInput);
+                            } catch (IllegalArgumentException e) {
+                                Log.d(DecryptionService.class.getName(), "Musique provenant d'un upload ultérieur");
+                                in = fis;
+                            }
+
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, bytesRead);
+                            }
+                            in.close();
+                            out.close();
+
+                            mp3TaggingTrack(targetFileTemp, targetFile, track);
+
+                            if (!targetFileTemp.delete()) {
+                                sendBroadcast(new Intent("com.gedexx.gpmextractor.service.file_decryption_error"));
+                            }
+
+                            if (!srcFile.delete()) {
+                                sendBroadcast(new Intent("com.gedexx.gpmextractor.service.file_decryption_error"));
+                            }
+
+                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(targetFile)));
+                        }
+                    } catch (InterruptedException | IOException e) {
+                        e.printStackTrace();
+                        sendBroadcast(new Intent("com.gedexx.gpmextractor.service.file_decryption_error"));
+                    } finally {
+                        p.destroy();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
