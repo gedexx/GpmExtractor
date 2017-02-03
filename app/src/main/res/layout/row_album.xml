@@ -8,7 +8,6 @@
 
     <ImageView
         android:id="@+id/ivAlbumCoverArt"
-        android:layout_alignBottom="@+id/ivAlbumDL"
         android:layout_alignParentTop="true"
         android:layout_width="50dp"
         android:layout_height="50dp"

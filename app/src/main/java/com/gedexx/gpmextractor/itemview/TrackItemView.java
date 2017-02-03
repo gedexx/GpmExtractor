@@ -1,9 +1,6 @@
 package com.gedexx.gpmextractor.itemview;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -11,12 +8,11 @@ import android.widget.TextView;
 
 import com.gedexx.gpmextractor.R;
 import com.gedexx.gpmextractor.domain.Track;
+import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
-
-import java.io.FileNotFoundException;
 
 @EViewGroup(R.layout.row_track)
 public class TrackItemView extends RelativeLayout {
@@ -45,12 +41,14 @@ public class TrackItemView extends RelativeLayout {
 
     public void bind(Track track) {
 
-        try {
+        /*try {
             Bitmap photo = BitmapFactory.decodeStream(getContext().openFileInput(track.getAlbum().getCoverArtLocalPath()));
             ivTrackAlbumCoverArt.setImageDrawable(new BitmapDrawable(getContext().getResources(), photo));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        Picasso.with(getContext()).load(track.getAlbum().getCoverArtUrl()).placeholder(android.R.drawable.ic_menu_camera).error(android.R.drawable.ic_delete).into(ivTrackAlbumCoverArt);
 
         tvTrackTitle.setText(track.getTitle().replace("\"", ""));
         tvTrackArtistName.setText(track.getArtist().getName().replace("\"", ""));

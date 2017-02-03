@@ -26,7 +26,6 @@ import com.gedexx.gpmextractor.helper.database.GpmDatabaseHelper;
 import com.gedexx.gpmextractor.itemview.AlbumItemView;
 import com.gedexx.gpmextractor.itemview.ArtistItemView;
 import com.gedexx.gpmextractor.itemview.TrackItemView;
-import com.gedexx.gpmextractor.service.AlbumArtCoverDownloadService_;
 import com.gedexx.gpmextractor.service.DecryptionService_;
 import com.gedexx.gpmextractor.service.GpmDbService_;
 import com.j256.ormlite.dao.Dao;
@@ -184,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             final List<Album> albums = albumDao.queryForAll();
             final List<Track> tracks = trackDao.queryForAll();
 
-            AlbumArtCoverDownloadService_.intent(getApplication()).downloadAlbumArtCoverFromUrl(albums).start();
+            //AlbumArtCoverDownloadService_.intent(getApplication()).downloadAlbumArtCoverFromUrl(albums).start();
 
             lvArtists.setAdapter(new ArtistAdapter(this, artists));
             lvAlbums.setAdapter(new AlbumAdapter(this, albums));

@@ -87,7 +87,7 @@ public class GpmDbService extends AbstractIntentService {
                     // be happy and work with the database
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    StringBuffer result = new StringBuffer();
+
                     String line;
                     while ((line = reader.readLine()) != null) {
                         Artist artist = createArtist(line);

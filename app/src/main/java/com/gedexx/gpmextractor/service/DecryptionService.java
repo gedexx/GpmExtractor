@@ -1,6 +1,7 @@
 package com.gedexx.gpmextractor.service;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.NotSupportedException;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.EIntentService;
 import org.androidannotations.annotations.ServiceAction;
@@ -171,7 +173,7 @@ public class DecryptionService extends AbstractIntentService {
             id3v2Tag.setAlbum(albumName);
             id3v2Tag.setYear(trackYear);
             id3v2Tag.setGenreDescription(albumGenre);
-            id3v2Tag.setAlbumImage(fileInputStreamToByteArray(openFileInput(track.getAlbum().getCoverArtLocalPath())), "image/png");
+            id3v2Tag.setAlbumImage(bitmapToByteArray(Picasso.with(getApplicationContext()).load(track.getAlbum().getCoverArtUrl()).get()), "image/png");
 
             trackFile.save(targetFile.getAbsolutePath());
 
@@ -196,6 +198,16 @@ public class DecryptionService extends AbstractIntentService {
         }
 
         fis.close();
+        bos.close();
+
+        return bos.toByteArray();
+    }
+
+    private static byte[] bitmapToByteArray(Bitmap bitmap) throws IOException {
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
         bos.close();
 
         return bos.toByteArray();

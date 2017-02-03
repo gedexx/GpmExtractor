@@ -1,9 +1,6 @@
 package com.gedexx.gpmextractor.itemview;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -11,12 +8,11 @@ import android.widget.TextView;
 
 import com.gedexx.gpmextractor.R;
 import com.gedexx.gpmextractor.domain.Album;
+import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
-
-import java.io.FileNotFoundException;
 
 @EViewGroup(R.layout.row_album)
 public class AlbumItemView extends RelativeLayout {
@@ -39,12 +35,14 @@ public class AlbumItemView extends RelativeLayout {
 
     public void bind(Album album) {
 
-        try {
+        /*try {
             Bitmap photo = BitmapFactory.decodeStream(getContext().openFileInput(album.getCoverArtLocalPath()));
             ivAlbumCoverArt.setImageDrawable(new BitmapDrawable(getContext().getResources(), photo));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        Picasso.with(getContext()).load(album.getCoverArtUrl()).placeholder(android.R.drawable.ic_menu_camera).error(android.R.drawable.ic_delete).into(ivAlbumCoverArt);
 
         tvAlbumName.setText(album.getName().replace("\"", ""));
         tvArtistAlbumName.setText(album.getArtist().getName().replace("\"", ""));

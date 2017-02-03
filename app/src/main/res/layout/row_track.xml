@@ -33,8 +33,8 @@
         android:textStyle="italic"
         android:layout_below="@+id/tvTrackArtistName"
         android:layout_alignStart="@+id/tvTrackArtistName"
-        android:layout_alignEnd="@+id/tvTrackArtistName"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        android:layout_alignEnd="@+id/tvTrackDuration" />
 
     <TextView
         android:text="TextView"
@@ -42,10 +42,11 @@
         android:layout_height="wrap_content"
         android:id="@+id/tvTrackTitle"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/ivTrackAlbumCoverArt"
         android:layout_marginStart="15dp"
         android:gravity="center_vertical"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:layout_alignEnd="@+id/tvTrackDuration"
+        android:layout_toEndOf="@+id/ivTrackAlbumCoverArt" />
 
     <TextView
         android:text="TextView"
@@ -54,7 +55,8 @@
         android:id="@+id/tvTrackArtistName"
         android:layout_below="@+id/tvTrackTitle"
         android:layout_alignStart="@+id/tvTrackTitle"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        android:layout_toStartOf="@+id/tvTrackDuration" />
 
     <CheckBox
         android:layout_width="wrap_content"
